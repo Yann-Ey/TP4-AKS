@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tp-app-deploy
+  namespace: tp-app
+spec:
+  replicas: 2                # On veut 2 copies de l'application (Haute dispo)
+  selector:
+    matchLabels:
+      app: tp-app
+  template:
+    metadata:
+      labels:
+        app: tp-app
+    spec:
+      containers:
+      - name: tp-app
+
+        image: acrtpyanne2025.azurecr.io/tp-app:v1
+        ports:
+        - containerPort: 8000
+        envFrom:             # Injection automatique de TOUT le ConfigMap
+        - configMapRef:
+            name: app-config
+        env:                 # Injection manuelle du Secret
+        - name: UPLOAD_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: app-secret
+              key: UPLOAD_PASSWORD
+        volumeMounts:        # On branche le disque dur sur le dossier /data
+        - name: shared-storage
+          mountPath: /data
+      volumes:
+      - name: shared-storage
+        persistentVolumeClaim:
+          claimName: shared-pvc

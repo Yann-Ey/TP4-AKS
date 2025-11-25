@@ -1,0 +1,1 @@
+"Ceci est un test pour Azure" | Out-File -Encoding ASCII test.txt
